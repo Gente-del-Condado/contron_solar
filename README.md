@@ -97,6 +97,10 @@ Después de eliminar usuarios MQTT, Mosquitto se recarga automáticamente para q
 
 El script realiza backups automáticos de los archivos existentes antes de sobrescribirlos.
 
+Puede usar el programa:
+MQTT Explorer (windows) para comprobar su funcionamiento.
+[Descargar MQTT Explorer](https://mqtt-explorer.com/)
+
 ## Licencia
 
 Este proyecto está bajo la licencia MIT.
