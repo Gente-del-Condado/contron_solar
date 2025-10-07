@@ -1,6 +1,14 @@
 #!/bin/bash
 # install_mqtt_control_full.sh
 # Instalación y desinstalación guiada del servicio MQTT Control para Raspberry Pi
+# Con colores ANSI en terminal
+
+# 🎨 Colores
+RED='\033[0;31m'      # Rojo - errores
+GREEN='\033[0;32m'    # Verde - éxito/confirmación
+YELLOW='\033[1;33m'   # Amarillo - títulos/advertencias
+BLUE='\033[1;34m'     # Azul - preguntas/prompts
+NC='\033[0m'          # Sin color (reset)
 
 # Variables
 BROKER="localhost"
@@ -13,46 +21,53 @@ SERVICE_PATH="/etc/systemd/system/mqtt-control.service"
 XUSER="kiosk"
 TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
 
-echo "=== Instalador / Desinstalador MQTT Control ==="
-echo "1) Instalar/Actualizar"
-echo "2) Desinstalar"
-read -p "Seleccione opción [1/2]: " OPTION
+# === Menú principal ===
+echo -e "${YELLOW}=== Instalador / Desinstalador MQTT Control ===${NC}"
+echo -e "${GREEN}1) Instalar/Actualizar${NC}"
+echo -e "${RED}2) Desinstalar${NC}"
+echo -ne "${BLUE}Seleccione opción [1/2]: ${NC}"
+read OPTION
 
 if [[ "$OPTION" == "1" ]]; then
-    echo "=== Instalación / Actualización ==="
+    echo -e "${YELLOW}=== Instalación / Actualización ===${NC}"
 
     # 1️⃣ Comprobar mosquitto_sub
     if ! command -v mosquitto_sub &> /dev/null; then
-        read -p "mosquitto_sub no está instalado. ¿Desea instalarlo? [y/N]: " ans
+        echo -ne "${BLUE}mosquitto_sub no está instalado. ¿Desea instalarlo? [y/N]: ${NC}"
+        read ans
         if [[ "$ans" =~ ^[Yy]$ ]]; then
             sudo apt update
             sudo apt install -y mosquitto-clients
         else
-            echo "mosquitto_sub necesario. Saliendo."
+            echo -e "${RED}mosquitto_sub necesario. Saliendo.${NC}"
             exit 1
         fi
     fi
 
     # 2️⃣ Preguntar si usar usuario por defecto o crear uno nuevo
-    read -p "¿Desea usar el usuario MQTT por defecto '$MQTT_USER' con contraseña '$MQTT_PASS'? [Y/n]: " ans_default
+    echo -ne "${BLUE}¿Desea usar el usuario MQTT por defecto '$MQTT_USER' con contraseña '$MQTT_PASS'? [Y/n]: ${NC}"
+    read ans_default
     if [[ "$ans_default" =~ ^[Nn]$ ]]; then
-        read -p "Ingrese el nuevo usuario MQTT: " MQTT_USER
-        read -s -p "Ingrese la contraseña para $MQTT_USER: " MQTT_PASS
+        echo -ne "${BLUE}Ingrese el nuevo usuario MQTT: ${NC}"
+        read MQTT_USER
+        echo -ne "${BLUE}Ingrese la contraseña para $MQTT_USER: ${NC}"
+        read -s MQTT_PASS
         echo
     else
-        echo "Usando usuario por defecto: $MQTT_USER"
+        echo -e "${GREEN}Usando usuario por defecto: $MQTT_USER${NC}"
     fi
 
     # 3️⃣ Comprobar usuario MQTT en Mosquitto
     MOSQ_PASSWD_FILE="/etc/mosquitto/passwd"
     if [ ! -f "$MOSQ_PASSWD_FILE" ] || ! grep -q "^$MQTT_USER:" "$MOSQ_PASSWD_FILE"; then
-        read -p "El usuario MQTT '$MQTT_USER' no existe en Mosquitto. ¿Desea crearlo? [y/N]: " ans
+        echo -ne "${BLUE}El usuario MQTT '$MQTT_USER' no existe en Mosquitto. ¿Desea crearlo? [y/N]: ${NC}"
+        read ans
         if [[ "$ans" =~ ^[Yy]$ ]]; then
             sudo touch "$MOSQ_PASSWD_FILE"
             sudo mosquitto_passwd -b "$MOSQ_PASSWD_FILE" "$MQTT_USER" "$MQTT_PASS"
-            echo "Usuario MQTT '$MQTT_USER' creado en $MOSQ_PASSWD_FILE"
+            echo -e "${GREEN}Usuario MQTT '$MQTT_USER' creado en $MOSQ_PASSWD_FILE${NC}"
         else
-            echo "Se requiere un usuario MQTT. Saliendo."
+            echo -e "${RED}Se requiere un usuario MQTT. Saliendo.${NC}"
             exit 1
         fi
     fi
@@ -61,17 +76,18 @@ if [[ "$OPTION" == "1" ]]; then
     if [ ! -f "$LOGFILE" ]; then
         sudo touch $LOGFILE
         sudo chmod 644 $LOGFILE
-        echo "Log creado en $LOGFILE"
+        echo -e "${GREEN}Log creado en $LOGFILE${NC}"
     fi
 
     # 5️⃣ Crear script MQTT
     if [ -f "$SCRIPT_PATH" ]; then
-        echo "Se detectó script existente en $SCRIPT_PATH"
+        echo -e "${YELLOW}Se detectó script existente en $SCRIPT_PATH${NC}"
         sudo cp "$SCRIPT_PATH" "${SCRIPT_PATH}.backup_$TIMESTAMP"
-        echo "Backup creado: ${SCRIPT_PATH}.backup_$TIMESTAMP"
+        echo -e "${GREEN}Backup creado: ${SCRIPT_PATH}.backup_$TIMESTAMP${NC}"
     fi
 
-    read -p "¿Desea crear/actualizar el script MQTT en $SCRIPT_PATH? [y/N]: " ans
+    echo -ne "${BLUE}¿Desea crear/actualizar el script MQTT en $SCRIPT_PATH? [y/N]: ${NC}"
+    read ans
     if [[ "$ans" =~ ^[Yy]$ ]]; then
         sudo tee $SCRIPT_PATH > /dev/null << EOF
 #!/bin/bash
@@ -117,17 +133,18 @@ do
 done
 EOF
         sudo chmod +x $SCRIPT_PATH
-        echo "Script creado/actualizado en $SCRIPT_PATH"
+        echo -e "${GREEN}Script creado/actualizado en $SCRIPT_PATH${NC}"
     fi
 
     # 6️⃣ Crear service systemd
     if [ -f "$SERVICE_PATH" ]; then
-        echo "Se detectó service existente en $SERVICE_PATH"
+        echo -e "${YELLOW}Se detectó service existente en $SERVICE_PATH${NC}"
         sudo cp "$SERVICE_PATH" "${SERVICE_PATH}.backup_$TIMESTAMP"
-        echo "Backup creado: ${SERVICE_PATH}.backup_$TIMESTAMP"
+        echo -e "${GREEN}Backup creado: ${SERVICE_PATH}.backup_$TIMESTAMP${NC}"
     fi
 
-    read -p "¿Desea crear/actualizar el service systemd en $SERVICE_PATH? [y/N]: " ans
+    echo -ne "${BLUE}¿Desea crear/actualizar el service systemd en $SERVICE_PATH? [y/N]: ${NC}"
+    read ans
     if [[ "$ans" =~ ^[Yy]$ ]]; then
         sudo tee $SERVICE_PATH > /dev/null << EOF
 [Unit]
@@ -150,15 +167,15 @@ EOF
         sudo systemctl daemon-reload
         sudo systemctl enable mqtt-control.service
         sudo systemctl restart mqtt-control.service
-        echo "Service creado y arrancado."
-        echo "Recargando Mosquitto..."
+        echo -e "${GREEN}Service creado y arrancado.${NC}"
+        echo -e "${YELLOW}Recargando Mosquitto...${NC}"
         sudo systemctl restart mosquitto
     fi
 
-    echo "Instalación/actualización finalizada. Ver logs en $LOGFILE"
+    echo -e "${GREEN}Instalación/actualización finalizada. Ver logs en $LOGFILE${NC}"
 
 elif [[ "$OPTION" == "2" ]]; then
-    echo "=== Desinstalación ==="
+    echo -e "${YELLOW}=== Desinstalación ===${NC}"
 
     # Detener servicio
     if systemctl is-active --quiet mqtt-control.service; then
@@ -170,21 +187,22 @@ elif [[ "$OPTION" == "2" ]]; then
         sudo systemctl disable mqtt-control.service
         sudo rm -f "$SERVICE_PATH"
         sudo systemctl daemon-reload
-        echo "Service eliminado."
+        echo -e "${GREEN}Service eliminado.${NC}"
     fi
 
-    # Eliminar usuario MQTT (lista y preguntar)
+    # Eliminar usuario MQTT
     MOSQ_PASSWD_FILE="/etc/mosquitto/passwd"
     if [ -f "$MOSQ_PASSWD_FILE" ]; then
         USERS=$(cut -d: -f1 "$MOSQ_PASSWD_FILE")
         if [ -n "$USERS" ]; then
-            echo "Usuarios MQTT existentes:"
+            echo -e "${BLUE}Usuarios MQTT existentes:${NC}"
             echo "$USERS"
-            read -p "Ingrese el usuario que desea eliminar (o enter para saltar): " del_user
+            echo -ne "${BLUE}Ingrese el usuario que desea eliminar (o enter para saltar): ${NC}"
+            read del_user
             if [ -n "$del_user" ]; then
                 sudo mosquitto_passwd -D "$MOSQ_PASSWD_FILE" "$del_user"
-                echo "Usuario MQTT '$del_user' eliminado."
-                echo "Recargando Mosquitto..."
+                echo -e "${GREEN}Usuario MQTT '$del_user' eliminado.${NC}"
+                echo -e "${YELLOW}Recargando Mosquitto...${NC}"
                 sudo systemctl restart mosquitto
             fi
         fi
@@ -192,27 +210,29 @@ elif [[ "$OPTION" == "2" ]]; then
 
     # Borrar script MQTT
     if [ -f "$SCRIPT_PATH" ]; then
-        read -p "¿Desea hacer backup del script antes de borrarlo? [y/N]: " ans
+        echo -ne "${BLUE}¿Desea hacer backup del script antes de borrarlo? [y/N]: ${NC}"
+        read ans
         if [[ "$ans" =~ ^[Yy]$ ]]; then
             sudo cp "$SCRIPT_PATH" "${SCRIPT_PATH}.backup_$TIMESTAMP"
-            echo "Backup creado: ${SCRIPT_PATH}.backup_$TIMESTAMP"
+            echo -e "${GREEN}Backup creado: ${SCRIPT_PATH}.backup_$TIMESTAMP${NC}"
         fi
         sudo rm -f "$SCRIPT_PATH"
-        echo "Script eliminado."
+        echo -e "${GREEN}Script eliminado.${NC}"
     fi
 
     # Borrar log
     if [ -f "$LOGFILE" ]; then
-        read -p "¿Desea borrar el log $LOGFILE? [y/N]: " ans
+        echo -ne "${BLUE}¿Desea borrar el log $LOGFILE? [y/N]: ${NC}"
+        read ans
         if [[ "$ans" =~ ^[Yy]$ ]]; then
             sudo rm -f "$LOGFILE"
-            echo "Log eliminado."
+            echo -e "${GREEN}Log eliminado.${NC}"
         fi
     fi
 
-    echo "Desinstalación finalizada."
+    echo -e "${GREEN}Desinstalación finalizada.${NC}"
 
 else
-    echo "Opción no válida. Saliendo."
+    echo -e "${RED}Opción no válida. Saliendo.${NC}"
     exit 1
 fi
