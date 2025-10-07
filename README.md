@@ -33,8 +33,7 @@ chmod +x install_mqtt_control.sh
 ```bash
 ./install_mqtt_control.sh
 ```
-4.Seguir las instrucciones en pantalla:
-Seguir las instrucciones en pantalla:
+4. **Seguir las instrucciones en pantalla:**
 
 Seleccionar 1) Instalar/Actualizar.
 
