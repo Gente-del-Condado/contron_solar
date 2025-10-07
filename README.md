@@ -20,12 +20,6 @@ El script crea:
 ---
 
 ## Instalación
-
-0. ** Instalar con un comando**
-```bash
-wget -qO- https://raw.githubusercontent.com/Gente-del-Condado/contron_solar/main/install-mqtt-control.sh | sudo bash
-```
-
 1. **Descargar el script de instalación**:
 
 ```bash
