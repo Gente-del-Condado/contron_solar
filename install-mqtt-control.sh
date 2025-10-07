@@ -182,6 +182,8 @@ elif [[ "$OPTION" == "2" ]]; then
             if [ -n "$del_user" ]; then
                 sudo mosquitto_passwd -D "$MOSQ_PASSWD_FILE" "$del_user"
                 echo "Usuario MQTT '$del_user' eliminado."
+                echo "Recargando Mosquitto..."
+                sudo systemctl restart mosquitto
             fi
         fi
     fi
