@@ -26,7 +26,7 @@ El script crea:
 wget -qO- https://raw.githubusercontent.com/Gente-del-Condado/contron_solar/main/install-mqtt-control.sh | sudo bash
 ```
 
-2. **Descargar el script de instalación**:
+1. **Descargar el script de instalación**:
 
 ```bash
 wget https://raw.githubusercontent.com/Gente-del-Condado/contron_solar/main/install-mqtt-control.sh -O install_mqtt_control.sh
