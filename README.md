@@ -1,4 +1,4 @@
-# MQTT Control para Raspberry Pi
+# MQTT Control para Raspberry Pi / Solar-Assistant
 
 Este proyecto proporciona un **script de instalación y desinstalación guiada** para un servicio de control de Raspberry Pi mediante MQTT. Permite ejecutar comandos remotos como reiniciar, apagar, actualizar el sistema o controlar la pantalla a través de mensajes MQTT.
 
