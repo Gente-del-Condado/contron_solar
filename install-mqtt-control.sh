@@ -151,6 +151,8 @@ EOF
         sudo systemctl enable mqtt-control.service
         sudo systemctl restart mqtt-control.service
         echo "Service creado y arrancado."
+        echo "Recargando Mosquitto..."
+        sudo systemctl restart mosquitto
     fi
 
     echo "Instalación/actualización finalizada. Ver logs en $LOGFILE"
