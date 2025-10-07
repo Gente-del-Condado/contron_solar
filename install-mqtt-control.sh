@@ -133,7 +133,6 @@ EOF
 [Unit]
 Description=MQTT Control Service for Raspberry Pi
 After=network.target
-After=graphical.target
 
 [Service]
 Type=simple
